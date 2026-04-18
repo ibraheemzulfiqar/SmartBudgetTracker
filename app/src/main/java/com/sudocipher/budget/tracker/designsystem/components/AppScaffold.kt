@@ -2,6 +2,7 @@ package com.sudocipher.budget.tracker.designsystem.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ fun AppScaffold(
     title: String? = null,
     onNavigateUp: (() -> Unit)? = null,
     contentPadding: Dp = 16.dp,
+    actions: @Composable (RowScope.() -> Unit) = {},
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -41,6 +43,7 @@ fun AppScaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { title?.let { Text(it) } },
+                actions = actions,
                 navigationIcon = {
                     if (onNavigateUp != null) {
                         IconButton(onClick = dropUnlessResumed {

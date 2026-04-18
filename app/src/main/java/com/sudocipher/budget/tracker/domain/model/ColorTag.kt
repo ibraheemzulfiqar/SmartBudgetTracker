@@ -1,0 +1,24 @@
+package com.sudocipher.budget.tracker.domain.model
+
+enum class ColorTag(val hex: Long) {
+    RED(0xFFFF0000),
+    PINK(0xFFFF4081),
+    MAGENTA(0xFFFF00FF),
+    PURPLE(0xFF9C27B0),
+    DEEP_PURPLE(0xFF673AB7),
+    INDIGO(0xFF3F51B5),
+    BLUE(0xFF2196F3),
+    LIGHT_BLUE(0xFF03A9F4),
+    CYAN(0xFF00BCD4),
+    TEAL(0xFF009688),
+    GREEN(0xFF4CAF50),
+    LIME(0xFFCDDC39),
+    YELLOW(0xFFFFEB3B),
+    AMBER(0xFFFFC107),
+    ORANGE(0xFFFF9800),
+    DEEP_ORANGE(0xFFFF5722),
+    BROWN(0xFF795548),
+    GREY(0xFF9E9E9E),
+    BLUE_GREY(0xFF607D8B),
+    BLACK(0xFF000000)
+}

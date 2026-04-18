@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.sudocipher.budget.tracker.designsystem.theme.LabTheme
+import com.sudocipher.budget.tracker.designsystem.theme.BudgetTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LabTheme {
+            BudgetTheme {
                 MyApp()
             }
         }

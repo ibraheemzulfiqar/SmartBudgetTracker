@@ -8,12 +8,16 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.sudocipher.budget.tracker.ui._feature.FeatureRoute
-import com.sudocipher.budget.tracker.ui._feature.featureRoute
+import com.sudocipher.budget.tracker.ui.add_account.addAccountRoute
+import com.sudocipher.budget.tracker.ui.add_account.navigateToAddAccount
+import com.sudocipher.budget.tracker.ui.add_transaction.addTransactionRoute
+import com.sudocipher.budget.tracker.ui.add_transaction.navigateToAddTransaction
+import com.sudocipher.budget.tracker.ui.home.HomeRoute
+import com.sudocipher.budget.tracker.ui.home.homeRoute
 
 @Composable
 fun MyApp() {
-    val backStack = rememberNavBackStack(FeatureRoute(addLoadingDelay = true))
+    val backStack = rememberNavBackStack(HomeRoute)
 
     NavDisplay(
         backStack = backStack,
@@ -23,8 +27,17 @@ fun MyApp() {
         ),
         entryProvider = entryProvider {
 
-            featureRoute(
-                navigateUp = { backStack.removeIfLast() },
+            homeRoute(
+                navigateToAddAccount = backStack::navigateToAddAccount,
+                navigateToAddTransaction = backStack::navigateToAddTransaction,
+            )
+
+            addAccountRoute(
+                navigateUp = { backStack.removeIfLast() }
+            )
+
+            addTransactionRoute(
+                navigateUp = { backStack.removeIfLast() }
             )
 
         }
