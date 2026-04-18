@@ -26,4 +26,7 @@ interface AccountDao {
     @Query("SELECT * FROM account ORDER BY dateCreated DESC LIMIT 1")
     fun getFirstAccount(): Flow<AccountEntity>
 
+    @Query("UPDATE account SET balance = balance + :delta WHERE id = :accountId")
+    suspend fun updateBalance(accountId: Long, delta: Double)
+
 }

@@ -16,7 +16,7 @@ interface BudgetRepository {
 
     fun getTransaction(id: Long): Flow<Transaction>
 
-    fun addOrUpdateTransaction(transaction: Transaction)
+    fun addOrUpdateTransaction(new: Transaction, old: Transaction?)
 
     fun getAllTransactions(): Flow<List<Transaction>>
 }

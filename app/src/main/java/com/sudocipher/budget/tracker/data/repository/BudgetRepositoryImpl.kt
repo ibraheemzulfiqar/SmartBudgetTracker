@@ -49,9 +49,18 @@ class BudgetRepositoryImpl @Inject constructor(
         return transactionDao.getTransactionById(id).map(TransactionWithAccount::asDomain)
     }
 
-    override fun addOrUpdateTransaction(transaction: Transaction) {
+    override fun addOrUpdateTransaction(new: Transaction, old: Transaction?) {
         externalScope.launch {
-            transactionDao.upsert(transaction.toEntity())
+            transactionDao.upsert(new.toEntity())
+
+            if (old != null && old.account.id != new.account.id) {
+                accountDao.updateBalance(old.account.id, -old.signedAmount)
+                accountDao.updateBalance(new.account.id, new.signedAmount)
+            } else {
+                val oldAmount = old?.signedAmount ?: 0.0
+                val delta = new.signedAmount - oldAmount
+                accountDao.updateBalance(new.account.id, delta)
+            }
         }
     }
 

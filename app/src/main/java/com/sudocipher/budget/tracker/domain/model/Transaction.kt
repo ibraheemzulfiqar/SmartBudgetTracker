@@ -13,6 +13,9 @@ data class Transaction(
     val timestamp: Instant,
 ) {
 
+    val signedAmount: Double
+        get() = if (type == TransactionType.INCOME) amount else -amount
+
     companion object {
 
         fun getEmpty(): Transaction = Transaction(

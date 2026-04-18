@@ -84,7 +84,8 @@ class AddTransactionViewModel @AssistedInject constructor(
 
         if (state !is TransactionFetchState.Success) return
 
-        var transaction = state.transaction ?: Transaction.getEmpty()
+        val oldTransaction = state.transaction
+        var transaction = oldTransaction ?: Transaction.getEmpty()
 
         transaction = transaction.copy(
             amount = amount.text.toString().toDouble(),
@@ -95,7 +96,7 @@ class AddTransactionViewModel @AssistedInject constructor(
             timestamp = Clock.System.now(),
         )
 
-        budgetRepository.addOrUpdateTransaction(transaction)
+        budgetRepository.addOrUpdateTransaction(new = transaction, old = oldTransaction)
     }
 
     @AssistedFactory
