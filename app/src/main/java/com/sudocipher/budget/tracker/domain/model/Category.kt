@@ -1,24 +1,24 @@
 package com.sudocipher.budget.tracker.domain.model
 
-sealed interface TransactionCategory {
+sealed interface Category {
 
-    data object FoodAndDrinks : TransactionCategory {
-        data object Bar : TransactionCategory
-        data object Groceries : TransactionCategory
-        data object Restaurant : TransactionCategory
+    data object FoodAndDrinks : Category {
+        data object Bar : Category
+        data object Groceries : Category
+        data object Restaurant : Category
     }
 
-    data object Shopping : TransactionCategory {
-        data object ClothsAndShoes : TransactionCategory
-        data object Gifts : TransactionCategory
+    data object Shopping : Category {
+        data object ClothsAndShoes : Category
+        data object Gifts : Category
     }
 
-    data object Transportation : TransactionCategory
+    data object Transportation : Category
 
-    data object Subscription : TransactionCategory
+    data object Subscription : Category
 
-    data object Income : TransactionCategory
+    data object Income : Category
 
-    data object Others : TransactionCategory
+    data object Others : Category
 
 }

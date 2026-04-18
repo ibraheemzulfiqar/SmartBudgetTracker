@@ -15,10 +15,12 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -29,6 +31,7 @@ import com.sudocipher.budget.tracker.designsystem.components.LoadingBox
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
 import com.sudocipher.budget.tracker.designsystem.theme.BudgetTheme
 import com.sudocipher.budget.tracker.domain.model.Account
+import com.sudocipher.budget.tracker.domain.model.CategoryData
 import com.sudocipher.budget.tracker.mock.states.MockStatesData
 
 @Preview
@@ -113,6 +116,11 @@ private fun HomeLoadedContent(
                 items = state.transactions,
                 key = { it.id }
             ) { transaction ->
+                val categoryItem = remember(transaction) {
+                    CategoryData.getCategoryItemOf(transaction.category)
+                }
+
+
                 ListItem(
                     modifier = Modifier.clickable(
                         onClick = { onNavigateToAddTransaction(transaction.id) }
@@ -121,7 +129,7 @@ private fun HomeLoadedContent(
                         Text(transaction.amount.toString())
                     },
                     supportingContent = {
-                        Text(transaction.category::class.simpleName.toString())
+                        Text(stringResource(categoryItem.name))
                     },
                     overlineContent = {
                         Text(transaction.account.name)

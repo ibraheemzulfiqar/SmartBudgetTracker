@@ -13,24 +13,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.fastForEach
+import com.sudocipher.budget.tracker.common.ui.dialogs.AccountPickerBottomSheet
+import com.sudocipher.budget.tracker.common.ui.dialogs.CategoryPickerBottomSheet
+import com.sudocipher.budget.tracker.common.ui.rememberBottomSheetDismissibleState
 import com.sudocipher.budget.tracker.designsystem.components.AppIcon
 import com.sudocipher.budget.tracker.designsystem.components.AppScaffold
 import com.sudocipher.budget.tracker.designsystem.components.LoadingBox
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
 import com.sudocipher.budget.tracker.domain.model.Account
-import com.sudocipher.budget.tracker.domain.model.TransactionCategory
+import com.sudocipher.budget.tracker.domain.model.CategoryItem
 import com.sudocipher.budget.tracker.domain.model.TransactionType
 
 @Composable
 fun AddTransactionScreen(
     fetchState: TransactionFetchState,
+    accounts: List<Account>,
     amount: TextFieldState,
-    category: TransactionCategory,
+    category: CategoryItem,
     transactionType: TransactionType,
     onAccountChange: (acc: Account) -> Unit,
     onTransactionTypeChange: (type: TransactionType) -> Unit,
-    onCategoryChange: (cat: TransactionCategory) -> Unit,
+    onCategoryChange: (cat: CategoryItem) -> Unit,
     onSaveChanges: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
@@ -52,7 +57,8 @@ fun AddTransactionScreen(
             is TransactionFetchState.Success -> {
                 AddTransactionContent(
                     amount = amount,
-                    account = fetchState.account,
+                    accounts = accounts,
+                    selectedAccount = fetchState.selectedAccount,
                     category = category,
                     transactionType = transactionType,
                     onTransactionTypeChange = onTransactionTypeChange,
@@ -67,14 +73,28 @@ fun AddTransactionScreen(
 @Composable
 private fun AddTransactionContent(
     amount: TextFieldState,
-    account: Account,
-    category: TransactionCategory,
+    accounts: List<Account>,
+    selectedAccount: Account,
+    category: CategoryItem,
     transactionType: TransactionType,
     onTransactionTypeChange: (type: TransactionType) -> Unit,
     onAccountChange: (acc: Account) -> Unit,
-    onCategoryChange: (cat: TransactionCategory) -> Unit,
+    onCategoryChange: (cat: CategoryItem) -> Unit,
 ) {
     val transactionTypes = remember { TransactionType.entries }
+    val categoryPickerBottomSheet = rememberBottomSheetDismissibleState()
+    val accountPickerBottomSheet = rememberBottomSheetDismissibleState()
+
+    CategoryPickerBottomSheet(
+        state = categoryPickerBottomSheet,
+        onCategorySelected = { onCategoryChange(it) },
+    )
+
+    AccountPickerBottomSheet(
+        state = accountPickerBottomSheet,
+        accounts = accounts,
+        onAccountSelected = onAccountChange,
+    )
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -102,14 +122,18 @@ private fun AddTransactionContent(
 
         Text("Account")
 
-        Button(onClick = {}) {
-            Text(account.name)
+        Button(onClick = {
+            accountPickerBottomSheet.show()
+        }) {
+            Text(selectedAccount.name)
         }
 
         Text("Category")
 
-        Button(onClick = {}) {
-            Text(category::class.simpleName.toString())
+        Button(onClick = {
+            categoryPickerBottomSheet.show()
+        }) {
+            Text(stringResource(category.name))
         }
     }
 }

@@ -28,13 +28,16 @@ fun EntryProviderScope<NavKey>.addTransactionRoute(
 
         val fetchState by viewModel.fetchState.collectAsState()
 
-        val category by viewModel.category.collectAsState()
+        val accounts by viewModel.accounts.collectAsState()
+
+        val category by viewModel.categoryItem.collectAsState()
 
         val type by viewModel.type.collectAsState()
 
         AddTransactionScreen(
             fetchState = fetchState,
             amount = viewModel.amount,
+            accounts = accounts,
             category = category,
             transactionType = type,
             onAccountChange = viewModel::setAccount,
@@ -44,7 +47,7 @@ fun EntryProviderScope<NavKey>.addTransactionRoute(
                 viewModel.saveTransaction()
                 navigateUp(route)
             },
-            onNavigateUp = { navigateUp(route) }
+            onNavigateUp = { navigateUp(route) },
         )
     }
 }

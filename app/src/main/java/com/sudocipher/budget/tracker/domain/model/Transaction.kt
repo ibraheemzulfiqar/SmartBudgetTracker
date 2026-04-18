@@ -8,7 +8,7 @@ data class Transaction(
     val amount: Double, // always positive
     val type: TransactionType,
     val account: Account,
-    val category: TransactionCategory,
+    val category: Category,
     val note: String? = null,
     val timestamp: Instant,
 ) {
@@ -23,7 +23,7 @@ data class Transaction(
             amount = 0.0,
             type = TransactionType.EXPENSE,
             account = Account.getEmpty(),
-            category = TransactionCategory.Others,
+            category = Category.Others,
             note = null,
             timestamp = Clock.System.now()
         )

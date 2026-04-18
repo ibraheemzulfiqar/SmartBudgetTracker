@@ -4,7 +4,7 @@ import com.sudocipher.budget.tracker.domain.model.Account
 import com.sudocipher.budget.tracker.domain.model.AccountType
 import com.sudocipher.budget.tracker.domain.model.ColorTag
 import com.sudocipher.budget.tracker.domain.model.Transaction
-import com.sudocipher.budget.tracker.domain.model.TransactionCategory
+import com.sudocipher.budget.tracker.domain.model.Category
 import com.sudocipher.budget.tracker.domain.model.TransactionType
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
@@ -45,7 +45,7 @@ object MockData {
                 amount = 12.50, // $12.50
                 type = TransactionType.EXPENSE,
                 account = account,
-                category = TransactionCategory.FoodAndDrinks,
+                category = Category.FoodAndDrinks,
                 note = "Starbucks Coffee",
                 timestamp = Clock.System.now().minus(2.hours)
             ),
@@ -54,7 +54,7 @@ object MockData {
                 amount = 14.99,
                 type = TransactionType.EXPENSE,
                 account = account,
-                category = TransactionCategory.Subscription,
+                category = Category.Subscription,
                 note = "Netflix Monthly",
                 timestamp = Clock.System.now().minus(1.days)
             ),
@@ -63,7 +63,7 @@ object MockData {
                 amount = 4500.0,
                 type = TransactionType.INCOME,
                 account = account,
-                category = TransactionCategory.Income,
+                category = Category.Income,
                 note = "Monthly Salary",
                 timestamp = Clock.System.now().minus(3.days)
             )

@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Budget Tracker</string>
+    <string name="category_food_drinks"><![CDATA[Food & Drinks]]></string>
+    <string name="bar">Bar</string>
+    <string name="groceries">Groceries</string>
+    <string name="restaurant">Restaurant</string>
+    <string name="shopping">Shopping</string>
+    <string name="clothes_shoes"><![CDATA[Clothes & Shoes]]></string>
+    <string name="gifts">Gifts</string>
+    <string name="transportation">Transportation</string>
+    <string name="subscription">Subscription</string>
+    <string name="income">Income</string>
+    <string name="others">Others</string>
 </resources>

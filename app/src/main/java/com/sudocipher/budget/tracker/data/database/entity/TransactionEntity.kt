@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.sudocipher.budget.tracker.domain.model.TransactionCategory
+import com.sudocipher.budget.tracker.domain.model.Category
 
 @Entity(
     tableName = "transactions",
@@ -27,7 +27,7 @@ data class TransactionEntity(
     val amount: Double, // always positive
     val type: String,
     val accountId: Long,
-    val category: TransactionCategory,
+    val category: Category,
     val note: String? = null,
     val timestamp: Long,
 )

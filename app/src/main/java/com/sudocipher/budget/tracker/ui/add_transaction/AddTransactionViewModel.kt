@@ -6,8 +6,10 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sudocipher.budget.tracker.domain.model.Account
+import com.sudocipher.budget.tracker.domain.model.Category
+import com.sudocipher.budget.tracker.domain.model.CategoryData
+import com.sudocipher.budget.tracker.domain.model.CategoryItem
 import com.sudocipher.budget.tracker.domain.model.Transaction
-import com.sudocipher.budget.tracker.domain.model.TransactionCategory
 import com.sudocipher.budget.tracker.domain.model.TransactionType
 import com.sudocipher.budget.tracker.domain.repository.BudgetRepository
 import com.sudocipher.budget.tracker.ui.add_transaction.TransactionFetchState.Loading
@@ -16,8 +18,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
@@ -27,13 +31,21 @@ class AddTransactionViewModel @AssistedInject constructor(
     @Assisted private val transactionId: Long?,
 ) : ViewModel() {
 
+    val accounts: StateFlow<List<Account>> = budgetRepository
+        .getAllAccounts()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
+
     val fetchState: StateFlow<TransactionFetchState>
         field = MutableStateFlow<TransactionFetchState>(Loading)
 
     val amount = TextFieldState("0")
 
-    val category: StateFlow<TransactionCategory>
-        field = MutableStateFlow<TransactionCategory>(TransactionCategory.Others)
+    val categoryItem: StateFlow<CategoryItem>
+        field = MutableStateFlow<CategoryItem>(CategoryData.getCategoryItemOf(Category.Others))
 
     val type: StateFlow<TransactionType>
         field = MutableStateFlow(TransactionType.EXPENSE)
@@ -45,18 +57,18 @@ class AddTransactionViewModel @AssistedInject constructor(
                 val transaction = budgetRepository.getTransaction(transactionId).first()
 
                 fetchState.value = TransactionFetchState.Success(
-                    account = transaction.account,
+                    selectedAccount = transaction.account,
                     transaction = transaction,
                 )
 
-                category.value = transaction.category
+                categoryItem.value = CategoryData.getCategoryItemOf(transaction.category)
                 type.value = transaction.type
                 amount.setTextAndPlaceCursorAtEnd(transaction.amount.toString())
             } else {
                 val account = budgetRepository.getDefaultAccount().first()
 
                 fetchState.value = TransactionFetchState.Success(
-                    account = account,
+                    selectedAccount = account,
                     transaction = null,
                 )
             }
@@ -68,11 +80,11 @@ class AddTransactionViewModel @AssistedInject constructor(
 
         if (state !is TransactionFetchState.Success) return
 
-        fetchState.value = state.copy(account = account)
+        fetchState.value = state.copy(selectedAccount = account)
     }
 
-    fun setCategory(category: TransactionCategory) {
-        this.category.value = category
+    fun setCategory(category: CategoryItem) {
+        this.categoryItem.value = category
     }
 
     fun setType(type: TransactionType) {
@@ -90,8 +102,8 @@ class AddTransactionViewModel @AssistedInject constructor(
         transaction = transaction.copy(
             amount = amount.text.toString().toDouble(),
             type = type.value,
-            account = state.account,
-            category = category.value,
+            account = state.selectedAccount,
+            category = categoryItem.value.category,
             note = null,
             timestamp = Clock.System.now(),
         )
@@ -113,7 +125,7 @@ sealed interface TransactionFetchState {
     @Immutable
     data class Success(
         val transaction: Transaction?,
-        val account: Account,
+        val selectedAccount: Account,
     ) : TransactionFetchState
 
 }
