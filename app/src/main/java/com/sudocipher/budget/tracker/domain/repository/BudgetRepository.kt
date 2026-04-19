@@ -28,4 +28,8 @@ interface BudgetRepository {
     fun addOrUpdateSavingsGoal(goal: SavingsGoal)
 
     fun deleteSavingsGoal(id: Long)
+
+    fun deleteAccount(id: Long)
+
+    fun deleteTransaction(id: Long)
 }
