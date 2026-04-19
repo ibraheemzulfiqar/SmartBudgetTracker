@@ -46,6 +46,9 @@ fun EntryProviderScope<NavKey>.addGoalRoute(
             onSaveGoal = {
                 viewModel.saveGoal(onSuccess = onNavigateUp)
             },
+            onDelete = {
+                viewModel.deleteGoal(onSuccess = onNavigateUp)
+            },
             onNavigateUp = onNavigateUp
         )
     }

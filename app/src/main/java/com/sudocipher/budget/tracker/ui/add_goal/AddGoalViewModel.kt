@@ -113,6 +113,17 @@ class AddGoalViewModel @AssistedInject constructor(
         }
     }
 
+    fun deleteGoal(onSuccess: () -> Unit) {
+        if (goalId != null) {
+            viewModelScope.launch {
+                _isLoading.value = true
+                repository.deleteSavingsGoal(goalId)
+                _isLoading.value = false
+                onSuccess()
+            }
+        }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(goalId: Long?): AddGoalViewModel
