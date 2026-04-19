@@ -97,7 +97,7 @@ class AddTransactionViewModel @AssistedInject constructor(
         var transaction = oldTransaction ?: Transaction.getEmpty()
 
         transaction = transaction.copy(
-            amount = amount.text.toString().toDouble(),
+            amount = amount.text.toString().toDoubleOrNull() ?: 0.0,
             type = type.value,
             account = state.selectedAccount,
             category = categoryItem.value.category,
@@ -106,6 +106,12 @@ class AddTransactionViewModel @AssistedInject constructor(
         )
 
         budgetRepository.addOrUpdateTransaction(new = transaction, old = oldTransaction)
+    }
+
+    fun deleteTransaction() {
+        if (transactionId != null) {
+            budgetRepository.deleteTransaction(transactionId)
+        }
     }
 
     @AssistedFactory
