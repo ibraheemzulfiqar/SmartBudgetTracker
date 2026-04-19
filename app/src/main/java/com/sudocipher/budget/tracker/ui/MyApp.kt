@@ -2,6 +2,8 @@ package com.sudocipher.budget.tracker.ui
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -69,30 +71,34 @@ fun MyApp() {
                 navigateToAddAccount = backStack::navigateToAddAccount,
                 navigateToAddTransaction = backStack::navigateToAddTransaction,
                 onNavigateToGoalDetail = backStack::navigateToGoalDetail,
-                onNavigateToAddGoal = { backStack.navigateToAddGoal() },
+                onNavigateToAddGoal = backStack::navigateToAddGoal,
             )
 
             addGoalRoute(
-                onNavigateUp = { backStack.removeLastOrNull() }
+                onNavigateUp = { backStack.removeLastSafely() }
             )
 
             savingsGoalDetailRoute(
-                navigateToEditGoal = { id -> backStack.navigateToAddGoal(goalId = id) },
-                navigateUp = { backStack.removeLastOrNull() },
+                navigateToEditGoal = backStack::navigateToAddGoal,
+                navigateUp = { backStack.removeLastSafely() },
             )
 
             addAccountRoute(
-                navigateUp = { backStack.removeLastOrNull() }
+                navigateUp = { backStack.removeLastSafely() }
             )
 
             addTransactionRoute(
-                navigateUp = { backStack.removeLastOrNull() }
+                navigateUp = { backStack.removeLastSafely() }
             )
 
-            statisticsRoute(
-                navigateUp = { backStack.removeLastOrNull() }
-            )
+            statisticsRoute()
 
         }
     )
+}
+
+fun NavBackStack<NavKey>.removeLastSafely() {
+    if (size == 1) return
+
+    removeLastOrNull()
 }

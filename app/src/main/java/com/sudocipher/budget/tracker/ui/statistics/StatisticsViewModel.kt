@@ -1,7 +1,9 @@
 package com.sudocipher.budget.tracker.ui.statistics
 
+import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sudocipher.budget.tracker.data.datastore.PreferenceStore
 import com.sudocipher.budget.tracker.domain.model.Category
 import com.sudocipher.budget.tracker.domain.model.TransactionType
 import com.sudocipher.budget.tracker.domain.repository.BudgetRepository
@@ -11,42 +13,70 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
-
-import com.sudocipher.budget.tracker.data.datastore.PreferenceStore
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
 import java.util.Currency
+import javax.inject.Inject
+import kotlin.time.Clock
 
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
-    private val repository: BudgetRepository,
-    private val preferenceStore: PreferenceStore,
+    repository: BudgetRepository,
+    preferenceStore: PreferenceStore,
 ) : ViewModel() {
 
-    private val _selectedParentCategory = MutableStateFlow<Category?>(null)
-    val selectedParentCategory: StateFlow<Category?> = _selectedParentCategory
+    val selectedParentCategory: StateFlow<Category?>
+        field  = MutableStateFlow<Category?>(null)
 
     val state: StateFlow<StatisticsState> = combine(
         repository.getAllTransactions(),
-        _selectedParentCategory,
+        selectedParentCategory,
         preferenceStore.preference
     ) { transactions, selectedParent, preference ->
         val currencySymbol = preference.currencyCode?.let {
             Currency.getInstance(it).symbol
         } ?: ""
+        
+        // Generate last 6 months labels
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+        val last6Months = (0..5).map { i ->
+            var year = now.year
+            var month = now.month.number - (5 - i)
+
+            while (month <= 0) {
+                month += 12
+                year -= 1
+            }
+
+            "${year}-${month.toString().padStart(2, '0')}"
+        }
+
         if (transactions.isEmpty()) {
+            val emptyMonthlyStats = last6Months.map { MonthlyStat(it, 0.0, 0.0) }
             StatisticsState.Success(
                 totalIncome = 0.0,
                 totalExpense = 0.0,
                 categoryStats = emptyList(),
-                monthlyStats = emptyList(),
+                monthlyStats = emptyMonthlyStats,
                 currencySymbol = currencySymbol
             )
         } else {
-            val income = transactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
-            val expense = transactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
 
-            val expenseTransactions = transactions.filter { it.type == TransactionType.EXPENSE }
-            
+            val expenseTransactions = transactions.fastFilter {
+                it.type == TransactionType.EXPENSE
+            }
+
+
+            val income = transactions.fastFilter {
+                it.type == TransactionType.INCOME
+            }.sumOf { it.amount }
+
+            val expense = expenseTransactions.sumOf { it.amount }
+
+
             val categoryGroups = if (selectedParent == null) {
                 // Show root-level categories
                 expenseTransactions
@@ -78,11 +108,27 @@ class StatisticsViewModel @Inject constructor(
                     }
             }.sortedByDescending { it.amount }
 
+            // Group existing transactions by month
+            val groupedTransactions = transactions.groupBy { 
+                val date = it.timestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
+            }
+
+            // Map to last 6 months ensuring no gaps
+            val monthlyStats = last6Months.map { monthKey ->
+                val monthTransactions = groupedTransactions[monthKey] ?: emptyList()
+                MonthlyStat(
+                    month = monthKey,
+                    income = monthTransactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount },
+                    expense = monthTransactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
+                )
+            }
+
             StatisticsState.Success(
                 totalIncome = income,
                 totalExpense = expense,
                 categoryStats = categoryGroups,
-                monthlyStats = emptyList(), // Simplified for now
+                monthlyStats = monthlyStats,
                 currencySymbol = currencySymbol
             )
         }
@@ -93,6 +139,6 @@ class StatisticsViewModel @Inject constructor(
     )
 
     fun selectParentCategory(category: Category?) {
-        _selectedParentCategory.value = category
+        selectedParentCategory.value = category
     }
 }

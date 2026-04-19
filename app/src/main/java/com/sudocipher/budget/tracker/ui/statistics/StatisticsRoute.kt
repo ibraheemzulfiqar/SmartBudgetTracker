@@ -15,9 +15,7 @@ fun NavBackStack<NavKey>.navigateToStatistics() {
     add(StatisticsRoute)
 }
 
-fun EntryProviderScope<NavKey>.statisticsRoute(
-    navigateUp: () -> Unit,
-) {
+fun EntryProviderScope<NavKey>.statisticsRoute() {
     entry<StatisticsRoute> {
         val viewModel = hiltViewModel<StatisticsViewModel>()
         val state by viewModel.state.collectAsState()

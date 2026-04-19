@@ -19,6 +19,7 @@ timber = "5.0.1"
 junit4 = "4.13.2"
 androidxJunit = "1.3.0"
 espresso = "3.7.0"
+composeCharts = "0.2.5"
 
 [libraries]
 
@@ -57,6 +58,7 @@ junit-androidx-ext = { module = "androidx.test.ext:junit", version.ref = "androi
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }
 
 [plugins]
 

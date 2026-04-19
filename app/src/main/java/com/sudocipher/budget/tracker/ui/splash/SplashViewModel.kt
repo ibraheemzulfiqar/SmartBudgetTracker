@@ -21,7 +21,7 @@ class SplashViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val preference = preferenceStore.prefFlow().first()
+            val preference = preferenceStore.preference.first()
 
             when {
                 preference.currencyCode == null -> {

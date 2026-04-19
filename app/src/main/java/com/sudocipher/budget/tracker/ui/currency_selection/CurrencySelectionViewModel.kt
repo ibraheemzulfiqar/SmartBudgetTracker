@@ -26,7 +26,7 @@ class CurrencySelectionViewModel @Inject constructor(
 
     private fun loadCurrencies() {
         val availableCurrencies =
-            listOf("PKR", "USD", "EUR", "GBP", "JPY", "CNY", "INR", "AED", "SAR", "CAD", "AUD")
+            listOf("PKR", "USD", "EUR", "GBP", "JPY", "CNY", "INR", "SAR", "CAD", "AUD")
                 .map { code ->
                     val currency = Currency.getInstance(code)
 

@@ -14,7 +14,7 @@ interface SavingsGoalDao {
     fun getAllSavingsGoals(): Flow<List<SavingsGoalEntity>>
 
     @Query("SELECT * FROM savings_goals WHERE id = :id")
-    fun getSavingsGoal(id: Long): Flow<SavingsGoalEntity>
+    fun getSavingsGoal(id: Long): Flow<SavingsGoalEntity?>
 
     @Upsert
     suspend fun insertOrUpdateSavingsGoal(goal: SavingsGoalEntity)

@@ -20,7 +20,7 @@ interface TransactionDao {
 
     @Transaction
     @Query("SELECT * FROM transactions WHERE id = :id")
-    fun getTransactionById(id: Long): Flow<TransactionWithAccount>
+    fun getTransactionById(id: Long): Flow<TransactionWithAccount?>
 
     @Transaction
     @Query("SELECT * FROM transactions ORDER BY timestamp DESC")

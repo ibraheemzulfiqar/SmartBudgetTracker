@@ -49,6 +49,9 @@ object AppIcons {
     val Edit: AppPainter
         @Composable get() = rememberAppPainter(Icons.Default.Edit)
 
+    val Delete: AppPainter
+        @Composable get() = rememberAppPainter(Icons.Default.Delete)
+
     val CalendarMonth: AppPainter
         @Composable get() = rememberAppPainter(Icons.Outlined.CalendarMonth)
 

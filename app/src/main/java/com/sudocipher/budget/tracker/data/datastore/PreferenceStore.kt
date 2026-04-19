@@ -6,10 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,21 +19,7 @@ class PreferenceStore @Inject constructor(
     private val externalScope: CoroutineScope =
         CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    val preference: StateFlow<Preference> = datastore.data.stateIn(
-        scope = externalScope,
-        started = SharingStarted.Eagerly,
-        initialValue = Preference.DEFAULT,
-    )
-
-    fun prefFlow() = datastore.data
-
-    fun showWelcomeMessage(): Flow<Boolean> {
-        return getPreference { showWelcomeMessage }
-    }
-
-    fun setShowWelcomeMessage(show: Boolean): Job {
-        return setPreference { copy(showWelcomeMessage = show) }
-    }
+    val preference = datastore.data
 
     fun setCurrencyCode(code: String): Job {
         return setPreference { copy(currencyCode = code) }

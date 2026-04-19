@@ -6,12 +6,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -63,12 +65,13 @@ fun AppIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     size: Dp = AppButtonDefaults.IconButtonSize,
+    tint: Color = LocalContentColor.current,
 ) {
     IconButton(
         modifier = modifier.requiredSize(size),
         onClick = onClick,
     ) {
-        AppIcon(icon)
+        AppIcon(icon, tint = tint)
     }
 }
 
