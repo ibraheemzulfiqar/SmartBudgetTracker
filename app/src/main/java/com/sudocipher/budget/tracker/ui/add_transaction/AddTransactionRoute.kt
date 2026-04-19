@@ -36,8 +36,8 @@ fun EntryProviderScope<NavKey>.addTransactionRoute(
 
         AddTransactionScreen(
             fetchState = fetchState,
-            amount = viewModel.amount,
             accounts = accounts,
+            amount = viewModel.amount,
             category = category,
             transactionType = type,
             onAccountChange = viewModel::setAccount,
@@ -45,6 +45,10 @@ fun EntryProviderScope<NavKey>.addTransactionRoute(
             onCategoryChange = viewModel::setCategory,
             onSaveChanges = {
                 viewModel.saveTransaction()
+                navigateUp(route)
+            },
+            onDelete = {
+                viewModel.deleteTransaction()
                 navigateUp(route)
             },
             onNavigateUp = { navigateUp(route) },
