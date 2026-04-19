@@ -17,12 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.lerp
 import com.sudocipher.budget.tracker.R
 import com.sudocipher.budget.tracker.designsystem.components.AppIcon
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
-import com.sudocipher.budget.tracker.domain.model.Category
 import com.sudocipher.budget.tracker.domain.model.SavingsGoal
 import com.sudocipher.budget.tracker.ui.dashboard.DashboardScreen
 import com.sudocipher.budget.tracker.ui.dashboard.DashboardState
@@ -34,6 +35,7 @@ import com.sudocipher.budget.tracker.ui.main.BottomNavigations.STATS
 import com.sudocipher.budget.tracker.ui.statistics.StatisticsScreen
 import com.sudocipher.budget.tracker.ui.statistics.StatisticsState
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 enum class BottomNavigations(
     @StringRes val label: Int
@@ -49,9 +51,6 @@ fun MainScreen(
     dashboardState: DashboardState,
     savingsGoalsState: SavingsGoalsState,
     statisticsState: StatisticsState,
-    selectedStatisticsParent: Category?,
-    onStatisticsCategoryClick: (Category) -> Unit,
-    onStatisticsBackToParent: () -> Unit,
     onNavigateToAddAccount: (Long?) -> Unit,
     onNavigateToAddTransaction: (Long?) -> Unit,
     onNavigateToGoalDetail: (SavingsGoal) -> Unit,
@@ -115,25 +114,45 @@ fun MainScreen(
                 beyondViewportPageCount = 3,
                 userScrollEnabled = false,
             ) { page ->
-                when (page) {
-                    DASHBOARD.ordinal -> DashboardScreen(
-                        state = dashboardState,
-                        onNavigateToAddAccount = onNavigateToAddAccount,
-                        onNavigateToAddTransaction = onNavigateToAddTransaction
-                    )
+                val pageOffset = (
+                        (pagerState.currentPage - page) + pagerState
+                            .currentPageOffsetFraction
+                        ).absoluteValue
 
-                    GOALS.ordinal -> SavingsGoalsScreen(
-                        state = savingsGoalsState,
-                        onNavigateToGoalDetail = onNavigateToGoalDetail,
-                        onAddAmount = onAddSavingsAmount
-                    )
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer {
+                            // Professional fade and scale effect
+                            alpha = lerp(
+                                start = 0.4f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                            )
+                            val scale = lerp(
+                                start = 0.85f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                            )
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                        .fillMaxSize()
+                ) {
+                    when (page) {
+                        DASHBOARD.ordinal -> DashboardScreen(
+                            state = dashboardState,
+                            onNavigateToAddAccount = onNavigateToAddAccount,
+                            onNavigateToAddTransaction = onNavigateToAddTransaction
+                        )
 
-                    STATS.ordinal -> StatisticsScreen(
-                        state = statisticsState,
-                        selectedParent = selectedStatisticsParent,
-                        onCategoryClick = onStatisticsCategoryClick,
-                        onBackToParent = onStatisticsBackToParent
-                    )
+                        GOALS.ordinal -> SavingsGoalsScreen(
+                            state = savingsGoalsState,
+                            onNavigateToGoalDetail = onNavigateToGoalDetail,
+                            onAddAmount = onAddSavingsAmount
+                        )
+
+                        STATS.ordinal -> StatisticsScreen(state = statisticsState)
+                    }
                 }
             }
         }

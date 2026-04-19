@@ -1,5 +1,9 @@
 package com.sudocipher.budget.tracker.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
@@ -32,6 +36,20 @@ fun MyApp() {
 
     NavDisplay(
         backStack = backStack,
+        transitionSpec = {
+            // Slide in from the right, fade out the previous screen
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(700)
+            ) togetherWith fadeOut(animationSpec = tween(700))
+        },
+        popTransitionSpec = {
+            // Slide out to the right, fade in the previous screen
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(700)
+            ) togetherWith fadeOut(animationSpec = tween(700))
+        },
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator(),
