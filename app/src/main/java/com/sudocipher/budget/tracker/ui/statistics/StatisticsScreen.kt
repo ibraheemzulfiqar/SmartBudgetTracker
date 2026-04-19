@@ -1,6 +1,13 @@
 package com.sudocipher.budget.tracker.ui.statistics
 
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -23,8 +30,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +48,6 @@ import com.sudocipher.budget.tracker.designsystem.components.LoadingBox
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
 import com.sudocipher.budget.tracker.designsystem.theme.Green
 import com.sudocipher.budget.tracker.designsystem.theme.Red
-import com.sudocipher.budget.tracker.domain.model.Category
 import com.sudocipher.budget.tracker.domain.model.CategoryData
 import ir.ehsannarmani.compose_charts.LineChart
 import ir.ehsannarmani.compose_charts.PieChart
@@ -55,22 +61,22 @@ import java.util.Locale
 @Composable
 fun StatisticsScreen(
     state: StatisticsState,
-    selectedParent: Category?,
-    onCategoryClick: (Category) -> Unit,
-    onBackToParent: () -> Unit,
 ) {
-    when (state) {
-        StatisticsState.Loading -> {
-            LoadingBox()
-        }
+    Crossfade(
+        targetState = state,
+        animationSpec = tween(durationMillis = 500),
+        label = "StateTransition"
+    ) { targetState ->
+        when (targetState) {
+            StatisticsState.Loading -> {
+                LoadingBox()
+            }
 
-        is StatisticsState.Success -> {
-            StatisticsContent(
-                state = state,
-                selectedParent = selectedParent,
-                onCategoryClick = onCategoryClick,
-                onBackToParent = onBackToParent
-            )
+            is StatisticsState.Success -> {
+                StatisticsContent(
+                    state = targetState
+                )
+            }
         }
     }
 }
@@ -78,9 +84,6 @@ fun StatisticsScreen(
 @Composable
 private fun StatisticsContent(
     state: StatisticsState.Success,
-    selectedParent: Category?,
-    onCategoryClick: (Category) -> Unit,
-    onBackToParent: () -> Unit,
 ) {
     val chartColors = listOf(
         Color(0xFF2E7D32), // Green
@@ -102,56 +105,60 @@ private fun StatisticsContent(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
-            OverviewCards(state.totalIncome, state.totalExpense, state.currencySymbol)
+            StaggeredEntrance(index = 0) {
+                OverviewCards(state.totalIncome, state.totalExpense, state.currencySymbol)
+            }
         }
 
         if (state.monthlyStats.isNotEmpty()) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Income vs Expenses",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        
-                        val monthLabels = state.monthlyStats.map { stat ->
-                            val parts = stat.month.split("-")
-                            val month = Month.of(parts[1].toInt())
-                            month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-                        }
-
-                        LineChart(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(220.dp),
-                            data = listOf(
-                                Line(
-                                    label = "Income",
-                                    values = state.monthlyStats.map { it.income },
-                                    color = Brush.verticalGradient(listOf(Green.copy(alpha = 0.8f), Green)),
-                                    curvedEdges = true
-                                ),
-                                Line(
-                                    label = "Expense",
-                                    values = state.monthlyStats.map { it.expense },
-                                    color = Brush.verticalGradient(listOf(Red.copy(alpha = 0.8f), Red)),
-                                    curvedEdges = true
-                                )
-                            ),
-                            labelProperties = LabelProperties(
-                                enabled = true,
-                                labels = monthLabels,
-                                textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.outline)
+                StaggeredEntrance(index = 1) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Income vs Expenses",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
-                        )
+                            Spacer(Modifier.height(16.dp))
+
+                            val monthLabels = state.monthlyStats.map { stat ->
+                                val parts = stat.month.split("-")
+                                val month = Month.of(parts[1].toInt())
+                                month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                            }
+
+                            LineChart(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp),
+                                data = listOf(
+                                    Line(
+                                        label = "Income",
+                                        values = state.monthlyStats.map { it.income },
+                                        color = Brush.verticalGradient(listOf(Green.copy(alpha = 0.8f), Green)),
+                                        curvedEdges = true
+                                    ),
+                                    Line(
+                                        label = "Expense",
+                                        values = state.monthlyStats.map { it.expense },
+                                        color = Brush.verticalGradient(listOf(Red.copy(alpha = 0.8f), Red)),
+                                        curvedEdges = true
+                                    )
+                                ),
+                                labelProperties = LabelProperties(
+                                    enabled = true,
+                                    labels = monthLabels,
+                                    textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.outline)
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -159,74 +166,63 @@ private fun StatisticsContent(
 
         if (state.categoryStats.isNotEmpty()) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                StaggeredEntrance(index = 2) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
                     ) {
-                        Text(
-                            text = "Spending Breakdown",
-                            modifier = Modifier.align(Alignment.Start),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        PieChart(
-                            modifier = Modifier.size(200.dp),
-                            data = state.categoryStats.mapIndexed { index, stat ->
-                                Pie(
-                                    label = stringResource(CategoryData.getCategoryItemOf(stat.category).name),
-                                    data = stat.amount,
-                                    color = chartColors[index % chartColors.size],
-                                    selectedColor = chartColors[index % chartColors.size].copy(alpha = 0.8f)
-                                )
-                            }
-                        )
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Spending Breakdown",
+                                modifier = Modifier.align(Alignment.Start),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            PieChart(
+                                modifier = Modifier.size(200.dp),
+                                data = state.categoryStats.mapIndexed { index, stat ->
+                                    Pie(
+                                        label = stringResource(CategoryData.getCategoryItemOf(stat.category).name),
+                                        data = stat.amount,
+                                        color = chartColors[index % chartColors.size],
+                                        selectedColor = chartColors[index % chartColors.size].copy(alpha = 0.8f)
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
             }
         }
 
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            StaggeredEntrance(index = 3) {
                 Text(
-                    text = if (selectedParent == null) "Spending by Category" else "Spending in ${stringResource(CategoryData.getCategoryItemOf(selectedParent).name)}",
+                    text = "Spending by Category",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxWidth()
                 )
-                
-                if (selectedParent != null) {
-                    TextButton(onClick = onBackToParent) {
-                        Text(
-                            text = "Back to All", 
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1
-                        )
-                    }
-                }
             }
         }
 
         if (state.categoryStats.isNotEmpty()) {
-            items(state.categoryStats) { stat ->
-                CategoryStatRow(
-                    stat = stat,
-                    currencySymbol = state.currencySymbol,
-                    onClick = { if (selectedParent == null) onCategoryClick(stat.category) }
-                )
+            itemsIndexed(state.categoryStats) { index, stat ->
+                StaggeredEntrance(index = index + 4) {
+                    CategoryStatRow(
+                        stat = stat,
+                        currencySymbol = state.currencySymbol
+                    )
+                }
             }
         } else {
             item {
@@ -242,6 +238,33 @@ private fun StatisticsContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun StaggeredEntrance(
+    index: Int,
+    content: @Composable () -> Unit
+) {
+    val visibleState = remember {
+        MutableTransitionState(false).apply {
+            targetState = true
+        }
+    }
+
+    AnimatedVisibility(
+        visibleState = visibleState,
+        enter = fadeIn(
+            animationSpec = tween(durationMillis = 400, delayMillis = index * 100)
+        ) + slideInVertically(
+            initialOffsetY = { it / 2 },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+        )
+    ) {
+        content()
     }
 }
 
@@ -320,15 +343,13 @@ private fun StatCard(
 @Composable
 private fun CategoryStatRow(
     stat: CategoryStat,
-    currencySymbol: String,
-    onClick: () -> Unit
+    currencySymbol: String
 ) {
     val categoryItem = CategoryData.getCategoryItemOf(stat.category)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .padding(vertical = 4.dp)
     ) {
         Row(

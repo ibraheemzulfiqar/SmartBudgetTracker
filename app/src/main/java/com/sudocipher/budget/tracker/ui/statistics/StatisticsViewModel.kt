@@ -4,16 +4,13 @@ import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sudocipher.budget.tracker.data.datastore.PreferenceStore
-import com.sudocipher.budget.tracker.domain.model.Category
 import com.sudocipher.budget.tracker.domain.model.TransactionType
 import com.sudocipher.budget.tracker.domain.repository.BudgetRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
@@ -27,14 +24,10 @@ class StatisticsViewModel @Inject constructor(
     preferenceStore: PreferenceStore,
 ) : ViewModel() {
 
-    val selectedParentCategory: StateFlow<Category?>
-        field  = MutableStateFlow<Category?>(null)
-
     val state: StateFlow<StatisticsState> = combine(
         repository.getAllTransactions(),
-        selectedParentCategory,
         preferenceStore.preference
-    ) { transactions, selectedParent, preference ->
+    ) { transactions, preference ->
         val currencySymbol = preference.currencyCode?.let {
             Currency.getInstance(it).symbol
         } ?: ""
@@ -56,6 +49,7 @@ class StatisticsViewModel @Inject constructor(
 
         if (transactions.isEmpty()) {
             val emptyMonthlyStats = last6Months.map { MonthlyStat(it, 0.0, 0.0) }
+
             StatisticsState.Success(
                 totalIncome = 0.0,
                 totalExpense = 0.0,
@@ -77,9 +71,7 @@ class StatisticsViewModel @Inject constructor(
             val expense = expenseTransactions.sumOf { it.amount }
 
 
-            val categoryGroups = if (selectedParent == null) {
-                // Show root-level categories
-                expenseTransactions
+            val categoryGroups = expenseTransactions
                     .groupBy { it.category.rootParent }
                     .map { (root, rootTransactions) ->
                         val amount = rootTransactions.sumOf { it.amount }
@@ -88,30 +80,12 @@ class StatisticsViewModel @Inject constructor(
                             amount = amount,
                             percentage = if (expense > 0) (amount / expense).toFloat() else 0f
                         )
-                    }
-            } else {
-                // Show subcategories of selected parent
-                val parentExpense = expenseTransactions
-                    .filter { it.category.rootParent.id == selectedParent.id }
-                    .sumOf { it.amount }
-
-                expenseTransactions
-                    .filter { it.category.rootParent.id == selectedParent.id }
-                    .groupBy { it.category }
-                    .map { (category, categoryTransactions) ->
-                        val amount = categoryTransactions.sumOf { it.amount }
-                        CategoryStat(
-                            category = category,
-                            amount = amount,
-                            percentage = if (parentExpense > 0) (amount / parentExpense).toFloat() else 0f
-                        )
-                    }
-            }.sortedByDescending { it.amount }
+                    }.sortedByDescending { it.amount }
 
             // Group existing transactions by month
             val groupedTransactions = transactions.groupBy { 
                 val date = it.timestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-                "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
+                "${date.year}-${date.month.number.toString().padStart(2, '0')}"
             }
 
             // Map to last 6 months ensuring no gaps
@@ -137,8 +111,4 @@ class StatisticsViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = StatisticsState.Loading
     )
-
-    fun selectParentCategory(category: Category?) {
-        selectedParentCategory.value = category
-    }
 }
