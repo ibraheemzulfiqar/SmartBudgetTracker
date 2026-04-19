@@ -14,4 +14,6 @@
     <string name="dashboard">Dashboard</string>
     <string name="saving_goals">Saving Goals</string>
     <string name="statistics">Statistics</string>
+    <string name="please_enter_goal_name">Please enter goal name!</string>
+    <string name="target_should_be_greater_than_0">Target should be greater than 0</string>
 </resources>

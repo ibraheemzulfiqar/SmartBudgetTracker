@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sudocipher.budget.tracker.common.ui.DismissibleState
 import com.sudocipher.budget.tracker.designsystem.components.AppButton
+import com.sudocipher.budget.tracker.designsystem.components.AppOutlinedButton
 import com.sudocipher.budget.tracker.designsystem.components.VerticalSpacer
 import com.sudocipher.budget.tracker.domain.model.SavingsGoal
 
@@ -66,16 +67,10 @@ fun AddAmountDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            AppButton(
+            AppOutlinedButton(
                 text = "Cancel",
                 onClick = { state.dismiss() },
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.onSurfaceVariant,
-                    contentColor = colorScheme.onSurface,
-                    disabledContainerColor = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    disabledContentColor = colorScheme.onSurface.copy(alpha = 0.5f),
-                ),
             )
 
             AppButton(

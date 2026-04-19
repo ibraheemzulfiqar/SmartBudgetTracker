@@ -114,16 +114,6 @@ private fun DashboardLoadedContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
-                if (state.transactions.isNotEmpty()) {
-                    TextButton(onClick = { /* TODO: Navigate to all transactions */ }) {
-                        Text(
-                            text = "See All", 
-                            color = colorScheme.primary,
-                            maxLines = 1
-                        )
-                    }
-                }
             }
         }
 

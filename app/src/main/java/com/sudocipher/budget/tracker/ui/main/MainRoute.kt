@@ -32,15 +32,11 @@ fun EntryProviderScope<NavKey>.mainRoute(
         val dashboardState by dashboardViewModel.state.collectAsState()
         val savingsGoalsState by savingsGoalsViewModel.state.collectAsState()
         val statisticsState by statisticsViewModel.state.collectAsState()
-        val selectedParent by statisticsViewModel.selectedParentCategory.collectAsState()
 
         MainScreen(
             dashboardState = dashboardState,
             savingsGoalsState = savingsGoalsState,
             statisticsState = statisticsState,
-            selectedStatisticsParent = selectedParent,
-            onStatisticsCategoryClick = statisticsViewModel::selectParentCategory,
-            onStatisticsBackToParent = { statisticsViewModel.selectParentCategory(null) },
             onNavigateToAddAccount = navigateToAddAccount,
             onNavigateToAddTransaction = navigateToAddTransaction,
             onNavigateToGoalDetail = { onNavigateToGoalDetail(it.id) },

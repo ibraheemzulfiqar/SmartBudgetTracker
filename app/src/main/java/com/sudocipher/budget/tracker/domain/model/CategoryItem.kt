@@ -23,20 +23,20 @@ object CategoryData {
             CategoryItem(
                 category = Category.FoodAndDrinks,
                 name = R.string.category_food_drinks,
-                icon = { AppIcons.Others },
+                icon = { AppIcons.Food },
                 subCategories = listOf(
-                    CategoryItem(Category.Bar, R.string.bar, { AppIcons.Others }),
-                    CategoryItem(Category.Groceries, R.string.groceries, { AppIcons.Others }),
-                    CategoryItem(Category.Restaurant, R.string.restaurant, { AppIcons.Others })
+                    CategoryItem(Category.Bar, R.string.bar, { AppIcons.Bar }),
+                    CategoryItem(Category.Groceries, R.string.groceries, { AppIcons.Grocery }),
+                    CategoryItem(Category.Restaurant, R.string.restaurant, { AppIcons.Restaurant })
                 )
             ),
             CategoryItem(
                 category = Category.Shopping,
                 name = R.string.shopping,
-                icon = { AppIcons.Gadget },
+                icon = { AppIcons.ShoppingCart },
                 subCategories = listOf(
                     CategoryItem(Category.ClothsAndShoes, R.string.clothes_shoes, { AppIcons.Gadget }),
-                    CategoryItem(Category.Gifts, R.string.gifts, { AppIcons.Gadget })
+                    CategoryItem(Category.Gifts, R.string.gifts, { AppIcons.Gift })
                 )
             ),
             CategoryItem(Category.Transportation, R.string.transportation, { AppIcons.Vehicle }),
