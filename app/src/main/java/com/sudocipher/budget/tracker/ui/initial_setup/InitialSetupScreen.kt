@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,7 +58,8 @@ fun InitialSetupScreen(
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            prefix = { Text("Amount: ") }
+            prefix = { Text("Amount: ") },
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         VerticalSpacer(32.dp)
