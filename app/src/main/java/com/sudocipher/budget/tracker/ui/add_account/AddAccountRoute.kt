@@ -29,6 +29,7 @@ fun EntryProviderScope<NavKey>.addAccountRoute(
         val fetchState by viewModel.fetchState.collectAsState()
         val accountType by viewModel.accountType.collectAsState()
         val accountColor by viewModel.accountColor.collectAsState()
+        val canDelete by viewModel.canDelete.collectAsState()
 
         AddAccountScreen(
             isLoading = fetchState is AccountFetchState.Loading,
@@ -37,11 +38,18 @@ fun EntryProviderScope<NavKey>.addAccountRoute(
             accountBalance = viewModel.accountBalance,
             accountType = accountType,
             colorTag = accountColor,
+            canDelete = canDelete,
             onTypeChange = viewModel::setAccountType,
             onColorChange = viewModel::setAccountColor,
             onSaveChanges = {
                 viewModel.saveAccount()
                 navigateUp(route)
+            },
+            onDelete = {
+                viewModel.deleteAccount(
+                    onComplete = { navigateUp(route) },
+                    onError = { /* We could show a Snackbar here if we had access to ScaffoldState */ }
+                )
             },
             onNavigateUp = { navigateUp(route) },
         )

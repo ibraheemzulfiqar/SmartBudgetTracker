@@ -16,8 +16,11 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = AddAccountViewModel.Factory::class)
@@ -25,6 +28,14 @@ class AddAccountViewModel @AssistedInject constructor(
     private val budgetRepository: BudgetRepository,
     @Assisted private val accountId: Long?,
 ) : ViewModel() {
+
+    val canDelete: StateFlow<Boolean> = budgetRepository.getAllAccounts()
+        .map { it.size > 1 }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
     val fetchState: StateFlow<AccountFetchState>
         field = MutableStateFlow<AccountFetchState>(Loading)
@@ -75,12 +86,26 @@ class AddAccountViewModel @AssistedInject constructor(
         account = account.copy(
             name = accountName.text.toString(),
             number = accountNumber.text.toString(),
-            balance = accountBalance.text.toString().toDouble(),
+            balance = accountBalance.text.toString().toDoubleOrNull() ?: 0.0,
             type = accountType.value,
             colorTag = accountColor.value,
         )
 
         budgetRepository.addOrUpdateAccount(account)
+    }
+
+    fun deleteAccount(onComplete: () -> Unit, onError: (String) -> Unit) {
+        if (accountId != null) {
+            viewModelScope.launch {
+                val allAccounts = budgetRepository.getAllAccounts().first()
+                if (allAccounts.size > 1) {
+                    budgetRepository.deleteAccount(accountId)
+                    onComplete()
+                } else {
+                    onError("At least one account must exist.")
+                }
+            }
+        }
     }
 
     @AssistedFactory

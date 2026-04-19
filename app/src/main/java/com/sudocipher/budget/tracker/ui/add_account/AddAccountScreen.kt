@@ -1,11 +1,18 @@
 package com.sudocipher.budget.tracker.ui.add_account
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,7 +22,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.sudocipher.budget.tracker.common.ui.dialogs.AccountTypePickerBottomSheet
 import com.sudocipher.budget.tracker.common.ui.rememberBottomSheetDismissibleState
-import com.sudocipher.budget.tracker.designsystem.components.*
+import com.sudocipher.budget.tracker.designsystem.components.AppButton
+import com.sudocipher.budget.tracker.designsystem.components.AppIconButton
+import com.sudocipher.budget.tracker.designsystem.components.AppScaffold
+import com.sudocipher.budget.tracker.designsystem.components.ColorTagDropdown
+import com.sudocipher.budget.tracker.designsystem.components.LoadingBox
+import com.sudocipher.budget.tracker.designsystem.components.SelectableItem
+import com.sudocipher.budget.tracker.designsystem.components.VerticalSpacer
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
 import com.sudocipher.budget.tracker.domain.model.AccountType
 import com.sudocipher.budget.tracker.domain.model.ColorTag
@@ -29,15 +42,24 @@ fun AddAccountScreen(
     accountBalance: TextFieldState,
     accountType: AccountType,
     colorTag: ColorTag,
+    canDelete: Boolean,
     onTypeChange: (AccountType) -> Unit,
     onColorChange: (ColorTag) -> Unit,
     onSaveChanges: () -> Unit,
+    onDelete: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     AppScaffold(
-        title = "New Account",
+        title = if (isLoading.not() && accountName.text.isNotEmpty()) "Edit Account" else "New Account",
         onNavigateUp = onNavigateUp,
         actions = {
+            if (accountName.text.isNotEmpty() && canDelete) {
+                AppIconButton(
+                    icon = AppIcons.Delete,
+                    onClick = onDelete,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
             AppIconButton(
                 icon = AppIcons.Check,
                 onClick = onSaveChanges,
@@ -121,7 +143,8 @@ private fun AddAccountContent(
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent,
                     cursorColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                lineLimits = androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
             )
         }
 
@@ -132,7 +155,8 @@ private fun AddAccountContent(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Account Name") },
                 placeholder = { Text("e.g. Personal Savings") },
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.large,
+                lineLimits = androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
             )
 
             OutlinedTextField(
@@ -140,13 +164,14 @@ private fun AddAccountContent(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Account Number (Optional)") },
                 placeholder = { Text("e.g. **** 1234") },
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.large,
+                lineLimits = androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
             )
 
             SelectableItem(
                 label = "Account Type",
                 value = accountTypeString(accountType),
-                icon = AppIcons.Dashboard,
+                icon = accountType.toIcon(),
                 onClick = { accountTypePickerState.show() }
             )
 

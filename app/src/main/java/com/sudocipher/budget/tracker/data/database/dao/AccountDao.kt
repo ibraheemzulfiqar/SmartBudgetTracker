@@ -17,14 +17,14 @@ interface AccountDao {
     suspend fun delete(acc: AccountEntity)
 
     @Query("SELECT * FROM account WHERE id = :id")
-    fun getAccountById(id: Long): Flow<AccountEntity>
+    fun getAccountById(id: Long): Flow<AccountEntity?>
 
     @Query("SELECT * FROM account ORDER BY dateCreated ASC")
     fun getAllAccounts(): Flow<List<AccountEntity>>
 
 
     @Query("SELECT * FROM account ORDER BY dateCreated DESC LIMIT 1")
-    fun getFirstAccount(): Flow<AccountEntity>
+    fun getFirstAccount(): Flow<AccountEntity?>
 
     @Query("UPDATE account SET balance = balance + :delta WHERE id = :accountId")
     suspend fun updateBalance(accountId: Long, delta: Double)
