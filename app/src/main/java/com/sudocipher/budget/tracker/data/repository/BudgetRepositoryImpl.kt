@@ -17,6 +17,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +32,7 @@ class BudgetRepositoryImpl @Inject constructor(
     private val externalScope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun getAccount(id: Long): Flow<Account> {
-        return accountDao.getAccountById(id).map(AccountEntity::asDomain)
+        return accountDao.getAccountById(id).filterNotNull().map(AccountEntity::asDomain)
     }
 
     override fun addOrUpdateAccount(account: Account) {
@@ -46,11 +48,11 @@ class BudgetRepositoryImpl @Inject constructor(
     }
 
     override fun getDefaultAccount(): Flow<Account> {
-        return accountDao.getFirstAccount().map(AccountEntity::asDomain)
+        return accountDao.getFirstAccount().filterNotNull().map(AccountEntity::asDomain)
     }
 
     override fun getTransaction(id: Long): Flow<Transaction> {
-        return transactionDao.getTransactionById(id).map(TransactionWithAccount::asDomain)
+        return transactionDao.getTransactionById(id).filterNotNull().map(TransactionWithAccount::asDomain)
     }
 
     override fun addOrUpdateTransaction(new: Transaction, old: Transaction?) {
@@ -81,7 +83,7 @@ class BudgetRepositoryImpl @Inject constructor(
     }
 
     override fun getSavingsGoal(id: Long): Flow<SavingsGoal> {
-        return savingsGoalDao.getSavingsGoal(id).map(SavingsGoalEntity::asDomain)
+        return savingsGoalDao.getSavingsGoal(id).filterNotNull().map(SavingsGoalEntity::asDomain)
     }
 
     override fun addOrUpdateSavingsGoal(goal: SavingsGoal) {
@@ -93,6 +95,27 @@ class BudgetRepositoryImpl @Inject constructor(
     override fun deleteSavingsGoal(id: Long) {
         externalScope.launch {
             savingsGoalDao.deleteSavingsGoal(id)
+        }
+    }
+
+    override fun deleteAccount(id: Long) {
+        externalScope.launch {
+            val account = accountDao.getAccountById(id).first()
+            if (account != null) {
+                accountDao.delete(account)
+            }
+        }
+    }
+
+    override fun deleteTransaction(id: Long) {
+        externalScope.launch {
+            val transactionWithAccount = transactionDao.getTransactionById(id).first()
+            if (transactionWithAccount != null) {
+                val transaction = transactionWithAccount.asDomain()
+                transactionDao.delete(transactionWithAccount.transaction)
+                // Reverse the balance impact
+                accountDao.updateBalance(transaction.account.id, -transaction.signedAmount)
+            }
         }
     }
 }
