@@ -1,11 +1,18 @@
 package com.sudocipher.budget.tracker.ui.add_transaction
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -15,14 +22,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.sudocipher.budget.tracker.common.ui.dialogs.AccountPickerBottomSheet
 import com.sudocipher.budget.tracker.common.ui.dialogs.CategoryPickerBottomSheet
 import com.sudocipher.budget.tracker.common.ui.rememberBottomSheetDismissibleState
-import com.sudocipher.budget.tracker.designsystem.components.*
+import com.sudocipher.budget.tracker.designsystem.components.AppButton
+import com.sudocipher.budget.tracker.designsystem.components.AppIconButton
+import com.sudocipher.budget.tracker.designsystem.components.AppScaffold
+import com.sudocipher.budget.tracker.designsystem.components.AppSegmentedControl
+import com.sudocipher.budget.tracker.designsystem.components.LoadingBox
+import com.sudocipher.budget.tracker.designsystem.components.SelectableItem
+import com.sudocipher.budget.tracker.designsystem.components.VerticalSpacer
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
 import com.sudocipher.budget.tracker.domain.model.Account
-import com.sudocipher.budget.tracker.domain.model.CategoryData
 import com.sudocipher.budget.tracker.domain.model.CategoryItem
 import com.sudocipher.budget.tracker.domain.model.TransactionType
 
@@ -37,12 +48,20 @@ fun AddTransactionScreen(
     onTransactionTypeChange: (type: TransactionType) -> Unit,
     onCategoryChange: (cat: CategoryItem) -> Unit,
     onSaveChanges: () -> Unit,
+    onDelete: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     AppScaffold(
-        title = "New Transaction",
+        title = if (fetchState is TransactionFetchState.Success && fetchState.transaction != null) "Edit Transaction" else "New Transaction",
         onNavigateUp = onNavigateUp,
         actions = {
+            if (fetchState is TransactionFetchState.Success && fetchState.transaction != null) {
+                AppIconButton(
+                    icon = AppIcons.Delete,
+                    onClick = onDelete,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
             AppIconButton(
                 icon = AppIcons.Check,
                 onClick = onSaveChanges,
@@ -147,7 +166,8 @@ private fun AddTransactionContent(
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent,
                     cursorColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                lineLimits = androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
             )
         }
 
