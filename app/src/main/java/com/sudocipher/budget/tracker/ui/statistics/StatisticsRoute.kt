@@ -21,10 +21,13 @@ fun EntryProviderScope<NavKey>.statisticsRoute(
     entry<StatisticsRoute> {
         val viewModel = hiltViewModel<StatisticsViewModel>()
         val state by viewModel.state.collectAsState()
+        val selectedParent by viewModel.selectedParentCategory.collectAsState()
 
         StatisticsScreen(
             state = state,
-            onNavigateUp = navigateUp
+            selectedParent = selectedParent,
+            onCategoryClick = viewModel::selectParentCategory,
+            onBackToParent = { viewModel.selectParentCategory(null) },
         )
     }
 }

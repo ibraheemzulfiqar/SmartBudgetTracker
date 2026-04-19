@@ -1,17 +1,13 @@
 package com.sudocipher.budget.tracker.common.ui.dialogs
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.sudocipher.budget.tracker.common.ui.BottomSheetDismissibleState
-import com.sudocipher.budget.tracker.designsystem.components.AppIconButton
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
 import com.sudocipher.budget.tracker.domain.model.Account
+import com.sudocipher.budget.tracker.ui.dashboard.accountTypeString
 
 @Composable
 fun AccountPickerBottomSheet(
@@ -20,40 +16,27 @@ fun AccountPickerBottomSheet(
     onAccountSelected: (Account) -> Unit,
 ) {
     AppBottomSheet(state) {
-
-        CenterAlignedTopAppBar(
-            title = {
-                Text("Select Account")
-            },
-            navigationIcon = {
-                AppIconButton(
-                    icon = AppIcons.ArrowBack,
-                    onClick = { state.dismiss() }
-                )
-            }
+        BottomSheetHeader(
+            title = "Select Account",
+            onClose = { state.dismiss() }
         )
 
         LazyColumn {
-
             items(
                 items = accounts,
             ) { account ->
-                ListItem(
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            onAccountSelected(account)
-                            state.dismiss()
-                        }
-                    ),
-                    headlineContent = {
-                        Text(account.name)
-                    },
-                    supportingContent = {
-                        Text(account.type.name)
+                BottomSheetListItem(
+                    title = account.name,
+                    subtitle = accountTypeString(account.type),
+                    icon = AppIcons.Dashboard,
+                    iconContainerColor = Color(account.colorTag.hex).copy(alpha = 0.15f),
+                    iconContentColor = Color(account.colorTag.hex),
+                    onClick = {
+                        onAccountSelected(account)
+                        state.dismiss()
                     }
                 )
             }
-
         }
     }
 }

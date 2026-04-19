@@ -33,7 +33,7 @@ class AddAccountViewModel @AssistedInject constructor(
 
     val accountNumber: TextFieldState = TextFieldState()
 
-    val accountBalance: TextFieldState = TextFieldState("0")
+    val accountBalance: TextFieldState = TextFieldState()
 
     val accountType: StateFlow<AccountType>
         field = MutableStateFlow(AccountType.GENERAL)

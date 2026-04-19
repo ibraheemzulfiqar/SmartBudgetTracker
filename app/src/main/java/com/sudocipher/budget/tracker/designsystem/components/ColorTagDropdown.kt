@@ -1,4 +1,4 @@
-package com.sudocipher.budget.tracker.ui.add_account.components
+package com.sudocipher.budget.tracker.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

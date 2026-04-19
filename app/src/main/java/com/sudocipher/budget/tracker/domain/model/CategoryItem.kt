@@ -1,11 +1,15 @@
 package com.sudocipher.budget.tracker.domain.model
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
 import com.sudocipher.budget.tracker.R
+import com.sudocipher.budget.tracker.designsystem.components.AppPainter
+import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
 
 data class CategoryItem(
     val category: Category,
     @StringRes val name: Int,
+    val icon: @Composable () -> AppPainter,
     val subCategories: List<CategoryItem> = emptyList(),
 ) {
     val hasSubCategories: Boolean
@@ -15,34 +19,31 @@ data class CategoryItem(
 object CategoryData {
 
     fun getCategories(): List<CategoryItem> {
-        val foodAndDrinks = CategoryItem(
-            category = Category.FoodAndDrinks,
-            name = R.string.category_food_drinks,
-            subCategories = listOf(
-                CategoryItem(Category.FoodAndDrinks.Bar, R.string.bar),
-                CategoryItem(Category.FoodAndDrinks.Groceries, R.string.groceries),
-                CategoryItem(Category.FoodAndDrinks.Restaurant, R.string.restaurant)
-            )
+        return listOf(
+            CategoryItem(
+                category = Category.FoodAndDrinks,
+                name = R.string.category_food_drinks,
+                icon = { AppIcons.Others },
+                subCategories = listOf(
+                    CategoryItem(Category.Bar, R.string.bar, { AppIcons.Others }),
+                    CategoryItem(Category.Groceries, R.string.groceries, { AppIcons.Others }),
+                    CategoryItem(Category.Restaurant, R.string.restaurant, { AppIcons.Others })
+                )
+            ),
+            CategoryItem(
+                category = Category.Shopping,
+                name = R.string.shopping,
+                icon = { AppIcons.Gadget },
+                subCategories = listOf(
+                    CategoryItem(Category.ClothsAndShoes, R.string.clothes_shoes, { AppIcons.Gadget }),
+                    CategoryItem(Category.Gifts, R.string.gifts, { AppIcons.Gadget })
+                )
+            ),
+            CategoryItem(Category.Transportation, R.string.transportation, { AppIcons.Vehicle }),
+            CategoryItem(Category.Subscription, R.string.subscription, { AppIcons.Gadget }),
+            CategoryItem(Category.Income, R.string.income, { AppIcons.Income }),
+            CategoryItem(Category.Others, R.string.others, { AppIcons.Others })
         )
-        val shopping = CategoryItem(
-            category = Category.Shopping,
-            name = R.string.shopping,
-            subCategories = listOf(
-                CategoryItem(Category.Shopping.ClothsAndShoes, R.string.clothes_shoes),
-                CategoryItem(Category.Shopping.Gifts, R.string.gifts)
-            )
-        )
-
-        val categories = listOf(
-            foodAndDrinks,
-            shopping,
-            CategoryItem(Category.Transportation, R.string.transportation),
-            CategoryItem(Category.Subscription, R.string.subscription),
-            CategoryItem(Category.Income, R.string.income),
-            CategoryItem(Category.Others, R.string.others)
-        )
-
-        return categories
     }
 
     fun getCategoryItemOf(category: Category): CategoryItem {
@@ -50,16 +51,13 @@ object CategoryData {
 
         fun findRecursive(items: List<CategoryItem>): CategoryItem? {
             for (item in items) {
-                if (item.category == category) return item
-
+                if (item.category.id == category.id) return item
                 val foundInSub = findRecursive(item.subCategories)
-
                 if (foundInSub != null) return foundInSub
             }
             return null
         }
 
-        return findRecursive(categories)
-            ?: throw IllegalArgumentException("CategoryItem not found against category=$categories")
+        return findRecursive(categories) ?: CategoryItem(Category.Others, R.string.others, { AppIcons.Others })
     }
 }

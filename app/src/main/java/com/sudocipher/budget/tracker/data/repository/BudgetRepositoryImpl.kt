@@ -4,10 +4,13 @@ import androidx.compose.ui.util.fastMap
 import com.sudocipher.budget.tracker.data.database.converter.asDomain
 import com.sudocipher.budget.tracker.data.database.converter.toEntity
 import com.sudocipher.budget.tracker.data.database.dao.AccountDao
+import com.sudocipher.budget.tracker.data.database.dao.SavingsGoalDao
 import com.sudocipher.budget.tracker.data.database.dao.TransactionDao
 import com.sudocipher.budget.tracker.data.database.entity.AccountEntity
+import com.sudocipher.budget.tracker.data.database.entity.SavingsGoalEntity
 import com.sudocipher.budget.tracker.data.database.entity.TransactionWithAccount
 import com.sudocipher.budget.tracker.domain.model.Account
+import com.sudocipher.budget.tracker.domain.model.SavingsGoal
 import com.sudocipher.budget.tracker.domain.model.Transaction
 import com.sudocipher.budget.tracker.domain.repository.BudgetRepository
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +23,8 @@ import javax.inject.Inject
 
 class BudgetRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val savingsGoalDao: SavingsGoalDao,
 ) : BudgetRepository {
 
     private val externalScope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -67,6 +71,28 @@ class BudgetRepositoryImpl @Inject constructor(
     override fun getAllTransactions(): Flow<List<Transaction>> {
         return transactionDao.getAllTransactions().map {
             it.fastMap(TransactionWithAccount::asDomain)
+        }
+    }
+
+    override fun getAllSavingsGoals(): Flow<List<SavingsGoal>> {
+        return savingsGoalDao.getAllSavingsGoals().map {
+            it.fastMap(SavingsGoalEntity::asDomain)
+        }
+    }
+
+    override fun getSavingsGoal(id: Long): Flow<SavingsGoal> {
+        return savingsGoalDao.getSavingsGoal(id).map(SavingsGoalEntity::asDomain)
+    }
+
+    override fun addOrUpdateSavingsGoal(goal: SavingsGoal) {
+        externalScope.launch {
+            savingsGoalDao.insertOrUpdateSavingsGoal(goal.toEntity())
+        }
+    }
+
+    override fun deleteSavingsGoal(id: Long) {
+        externalScope.launch {
+            savingsGoalDao.deleteSavingsGoal(id)
         }
     }
 }

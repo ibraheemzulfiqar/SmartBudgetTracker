@@ -28,12 +28,22 @@ class PreferenceStore @Inject constructor(
         initialValue = Preference.DEFAULT,
     )
 
+    fun prefFlow() = datastore.data
+
     fun showWelcomeMessage(): Flow<Boolean> {
         return getPreference { showWelcomeMessage }
     }
 
     fun setShowWelcomeMessage(show: Boolean): Job {
         return setPreference { copy(showWelcomeMessage = show) }
+    }
+
+    fun setCurrencyCode(code: String): Job {
+        return setPreference { copy(currencyCode = code) }
+    }
+
+    fun setInitialAccountSet(isSet: Boolean): Job {
+        return setPreference { copy(isInitialAccountSet = isSet) }
     }
 
     private fun setPreference(

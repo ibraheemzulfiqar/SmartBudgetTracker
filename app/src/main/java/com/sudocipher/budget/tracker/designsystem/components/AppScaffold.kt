@@ -41,19 +41,21 @@ fun AppScaffold(
     Scaffold(
         modifier = modifier,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { title?.let { Text(it) } },
-                actions = actions,
-                navigationIcon = {
-                    if (onNavigateUp != null) {
-                        IconButton(onClick = dropUnlessResumed {
-                            onNavigateUp()
-                        }) {
-                            AppIcon(AppIcons.ArrowBack)
+            if (title != null || onNavigateUp != null) {
+                CenterAlignedTopAppBar(
+                    title = { title?.let { Text(it) } },
+                    actions = actions,
+                    navigationIcon = {
+                        if (onNavigateUp != null) {
+                            IconButton(onClick = dropUnlessResumed {
+                                onNavigateUp()
+                            }) {
+                                AppIcon(AppIcons.ArrowBack)
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         },
         bottomBar = bottomBar,
         snackbarHost = snackbarHost,

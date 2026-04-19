@@ -26,5 +26,8 @@ data class Account(
 }
 
 enum class AccountType {
-    CASH, BANK, GENERAL
+    CASH,
+    BANK,
+    WALLET,
+    GENERAL
 }

@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.sudocipher.budget.tracker"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -63,6 +63,10 @@ ksp {
 }
 
 dependencies {
+
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
+    implementation ("io.github.ehsannarmani:compose-charts:0.2.5")
+
     implementation(libs.datastore)
 
     implementation(libs.timber)

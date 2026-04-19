@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.sudocipher.budget.tracker.data.database.BudgetDatabase
 import com.sudocipher.budget.tracker.data.database.dao.AccountDao
+import com.sudocipher.budget.tracker.data.database.dao.SavingsGoalDao
 import com.sudocipher.budget.tracker.data.database.dao.TransactionDao
 import dagger.Module
 import dagger.Provides
@@ -24,6 +25,11 @@ object DatabaseModule {
     @Provides
     fun getTransactionDao(db: BudgetDatabase): TransactionDao {
         return db.getTransactionDao()
+    }
+
+    @Provides
+    fun getSavingsGoalDao(db: BudgetDatabase): SavingsGoalDao {
+        return db.getSavingsGoalDao()
     }
 
     @Singleton

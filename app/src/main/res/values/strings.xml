@@ -11,4 +11,7 @@
     <string name="subscription">Subscription</string>
     <string name="income">Income</string>
     <string name="others">Others</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="saving_goals">Saving Goals</string>
+    <string name="statistics">Statistics</string>
 </resources>

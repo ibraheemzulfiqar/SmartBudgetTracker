@@ -11,6 +11,7 @@ sealed interface StatisticsState {
         val totalExpense: Double,
         val categoryStats: List<CategoryStat>,
         val monthlyStats: List<MonthlyStat>,
+        val currencySymbol: String,
     ) : StatisticsState
 
 }

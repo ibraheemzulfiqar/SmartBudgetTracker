@@ -1,50 +1,25 @@
 package com.sudocipher.budget.tracker.ui.add_account
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sudocipher.budget.tracker.designsystem.components.AppIcon
-import com.sudocipher.budget.tracker.designsystem.components.AppScaffold
+import com.sudocipher.budget.tracker.common.ui.dialogs.AccountTypePickerBottomSheet
+import com.sudocipher.budget.tracker.common.ui.rememberBottomSheetDismissibleState
+import com.sudocipher.budget.tracker.designsystem.components.*
 import com.sudocipher.budget.tracker.designsystem.icons.AppIcons
-import com.sudocipher.budget.tracker.designsystem.theme.BudgetTheme
 import com.sudocipher.budget.tracker.domain.model.AccountType
 import com.sudocipher.budget.tracker.domain.model.ColorTag
-import com.sudocipher.budget.tracker.mock.states.MockData
-import com.sudocipher.budget.tracker.ui.add_account.components.AccountTypeDropdown
-import com.sudocipher.budget.tracker.ui.add_account.components.ColorTagDropdown
-
-@Preview
-@Composable
-private fun AddAccountContentPrev() {
-    BudgetTheme {
-        val account = MockData.getAccount()
-
-        AddAccountScreen(
-            isLoading = false,
-            accountName = TextFieldState(account.name),
-            accountNumber = TextFieldState(account.number),
-            accountBalance = TextFieldState("2000"),
-            accountType = account.type,
-            colorTag = account.colorTag,
-            onTypeChange = {},
-            onColorChange = {},
-            onSaveChanges = {},
-            onNavigateUp = {},
-        )
-    }
-}
+import com.sudocipher.budget.tracker.ui.dashboard.accountTypeString
 
 @Composable
 fun AddAccountScreen(
@@ -60,32 +35,34 @@ fun AddAccountScreen(
     onNavigateUp: () -> Unit,
 ) {
     AppScaffold(
-        title = "Add Account",
+        title = "New Account",
         onNavigateUp = onNavigateUp,
         actions = {
-            IconButton(
+            AppIconButton(
+                icon = AppIcons.Check,
                 onClick = onSaveChanges,
-            ) {
-                AppIcon(AppIcons.Check)
-            }
+            )
         }
     ) {
-        AddAccountContent(
-            isLoading = isLoading,
-            accountName = accountName,
-            accountNumber = accountNumber,
-            accountBalance = accountBalance,
-            accountType = accountType,
-            colorTag = colorTag,
-            onTypeChange = onTypeChange,
-            onColorChange = onColorChange,
-        )
+        if (isLoading) {
+            LoadingBox()
+        } else {
+            AddAccountContent(
+                accountName = accountName,
+                accountNumber = accountNumber,
+                accountBalance = accountBalance,
+                accountType = accountType,
+                onTypeChange = onTypeChange,
+                onColorChange = onColorChange,
+                colorTag = colorTag,
+                onSaveChanges = onSaveChanges
+            )
+        }
     }
 }
 
 @Composable
 private fun AddAccountContent(
-    isLoading: Boolean,
     accountName: TextFieldState,
     accountNumber: TextFieldState,
     accountBalance: TextFieldState,
@@ -93,52 +70,100 @@ private fun AddAccountContent(
     onTypeChange: (AccountType) -> Unit,
     onColorChange: (ColorTag) -> Unit,
     colorTag: ColorTag,
+    onSaveChanges: () -> Unit,
 ) {
+    val accountTypePickerState = rememberBottomSheetDismissibleState()
+
+    AccountTypePickerBottomSheet(
+        state = accountTypePickerState,
+        onTypeSelected = onTypeChange
+    )
+
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top)
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        OutlinedTextField(
+        // Balance Input
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            state = accountName,
-            readOnly = isLoading,
-            label = {
-                Text("Account Name")
-            },
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            state = accountNumber,
-            readOnly = isLoading,
-            label = {
-                Text("Account Number")
-            },
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            state = accountBalance,
-            readOnly = isLoading,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-            ),
-            label = {
-                Text("Initial Balance")
-            },
-        )
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Initial Balance",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            VerticalSpacer(8.dp)
+            
+            OutlinedTextField(
+                state = accountBalance,
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = MaterialTheme.typography.headlineLarge.copy(
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                placeholder = {
+                    Text(
+                        "0.00",
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    cursorColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        }
 
-        AccountTypeDropdown(
-            selectedType = accountType,
-            onTypeSelected = onTypeChange,
-            isLoading = isLoading,
-            modifier = Modifier.fillMaxWidth()
-        )
+        // Account Details
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            OutlinedTextField(
+                state = accountName,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Account Name") },
+                placeholder = { Text("e.g. Personal Savings") },
+                shape = MaterialTheme.shapes.large
+            )
 
-        ColorTagDropdown(
-            selectedColor = colorTag,
-            onColorSelected = onColorChange,
-            isLoading = isLoading,
-            modifier = Modifier.fillMaxWidth()
+            OutlinedTextField(
+                state = accountNumber,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Account Number (Optional)") },
+                placeholder = { Text("e.g. **** 1234") },
+                shape = MaterialTheme.shapes.large
+            )
+
+            SelectableItem(
+                label = "Account Type",
+                value = accountTypeString(accountType),
+                icon = AppIcons.Dashboard,
+                onClick = { accountTypePickerState.show() }
+            )
+
+            ColorTagDropdown(
+                selectedColor = colorTag,
+                onColorSelected = onColorChange,
+                isLoading = false,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        VerticalSpacer(16.dp)
+
+        AppButton(
+            text = "Save Account",
+            onClick = onSaveChanges,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
-

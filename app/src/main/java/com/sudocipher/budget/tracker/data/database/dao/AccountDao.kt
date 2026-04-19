@@ -19,7 +19,7 @@ interface AccountDao {
     @Query("SELECT * FROM account WHERE id = :id")
     fun getAccountById(id: Long): Flow<AccountEntity>
 
-    @Query("SELECT * FROM account ORDER BY dateCreated DESC")
+    @Query("SELECT * FROM account ORDER BY dateCreated ASC")
     fun getAllAccounts(): Flow<List<AccountEntity>>
 
 

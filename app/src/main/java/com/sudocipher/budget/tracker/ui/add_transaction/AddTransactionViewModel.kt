@@ -39,16 +39,13 @@ class AddTransactionViewModel @AssistedInject constructor(
             initialValue = emptyList(),
         )
 
-    val fetchState: StateFlow<TransactionFetchState>
-        field = MutableStateFlow<TransactionFetchState>(Loading)
+    val fetchState = MutableStateFlow<TransactionFetchState>(Loading)
 
-    val amount = TextFieldState("0")
+    val amount = TextFieldState()
 
-    val categoryItem: StateFlow<CategoryItem>
-        field = MutableStateFlow<CategoryItem>(CategoryData.getCategoryItemOf(Category.Others))
+    val categoryItem = MutableStateFlow<CategoryItem>(CategoryData.getCategoryItemOf(Category.Others))
 
-    val type: StateFlow<TransactionType>
-        field = MutableStateFlow(TransactionType.EXPENSE)
+    val type = MutableStateFlow(TransactionType.EXPENSE)
 
 
     init {
